@@ -42,6 +42,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.timeToSetFrom = new System.Windows.Forms.TextBox();
             this.timeToSetTo = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.rubrikaBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // label1
@@ -105,7 +107,7 @@
             // 
             // startBtn
             // 
-            this.startBtn.Location = new System.Drawing.Point(110, 302);
+            this.startBtn.Location = new System.Drawing.Point(110, 366);
             this.startBtn.Name = "startBtn";
             this.startBtn.Size = new System.Drawing.Size(89, 44);
             this.startBtn.TabIndex = 9;
@@ -115,7 +117,7 @@
             // 
             // stopBtn
             // 
-            this.stopBtn.Location = new System.Drawing.Point(205, 302);
+            this.stopBtn.Location = new System.Drawing.Point(205, 366);
             this.stopBtn.Name = "stopBtn";
             this.stopBtn.Size = new System.Drawing.Size(89, 44);
             this.stopBtn.TabIndex = 10;
@@ -127,7 +129,7 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label5.Location = new System.Drawing.Point(15, 205);
+            this.label5.Location = new System.Drawing.Point(15, 269);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(148, 21);
@@ -136,7 +138,7 @@
             // 
             // loginBox
             // 
-            this.loginBox.Location = new System.Drawing.Point(12, 232);
+            this.loginBox.Location = new System.Drawing.Point(12, 296);
             this.loginBox.Name = "loginBox";
             this.loginBox.PlaceholderText = "Login";
             this.loginBox.Size = new System.Drawing.Size(208, 29);
@@ -145,7 +147,7 @@
             // 
             // passBox
             // 
-            this.passBox.Location = new System.Drawing.Point(12, 267);
+            this.passBox.Location = new System.Drawing.Point(12, 331);
             this.passBox.Name = "passBox";
             this.passBox.PlaceholderText = "Password";
             this.passBox.Size = new System.Drawing.Size(208, 29);
@@ -156,7 +158,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label2.Location = new System.Drawing.Point(13, 146);
+            this.label2.Location = new System.Drawing.Point(13, 210);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(237, 21);
@@ -165,7 +167,7 @@
             // 
             // timeToSetFrom
             // 
-            this.timeToSetFrom.Location = new System.Drawing.Point(15, 170);
+            this.timeToSetFrom.Location = new System.Drawing.Point(15, 234);
             this.timeToSetFrom.Name = "timeToSetFrom";
             this.timeToSetFrom.PlaceholderText = "От (в мсек)";
             this.timeToSetFrom.Size = new System.Drawing.Size(100, 29);
@@ -174,18 +176,40 @@
             // 
             // timeToSetTo
             // 
-            this.timeToSetTo.Location = new System.Drawing.Point(120, 170);
+            this.timeToSetTo.Location = new System.Drawing.Point(120, 234);
             this.timeToSetTo.Name = "timeToSetTo";
             this.timeToSetTo.PlaceholderText = "До (в мсек)";
             this.timeToSetTo.Size = new System.Drawing.Size(100, 29);
             this.timeToSetTo.TabIndex = 16;
             this.timeToSetTo.TextChanged += new System.EventHandler(this.timeToSetTo_TextChanged);
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label6.Location = new System.Drawing.Point(15, 146);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(163, 21);
+            this.label6.TabIndex = 17;
+            this.label6.Text = "Рубрика для работы";
+            // 
+            // rubrikaBox
+            // 
+            this.rubrikaBox.Location = new System.Drawing.Point(15, 173);
+            this.rubrikaBox.Name = "rubrikaBox";
+            this.rubrikaBox.PlaceholderText = "Ноутбуки";
+            this.rubrikaBox.Size = new System.Drawing.Size(208, 29);
+            this.rubrikaBox.TabIndex = 18;
+            this.rubrikaBox.TextChanged += new System.EventHandler(this.rubrikaBox_TextChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 21F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(307, 357);
+            this.ClientSize = new System.Drawing.Size(307, 418);
+            this.Controls.Add(this.rubrikaBox);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.timeToSetTo);
             this.Controls.Add(this.timeToSetFrom);
             this.Controls.Add(this.label2);
@@ -225,5 +249,7 @@
         private Label label2;
         private TextBox timeToSetFrom;
         private TextBox timeToSetTo;
+        private Label label6;
+        private TextBox rubrikaBox;
     }
 }

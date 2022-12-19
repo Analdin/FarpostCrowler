@@ -19,6 +19,7 @@ namespace FarpostCrowler
         public static string TimeEnd { get; set; }
         public static int TimeSetFrom { get; set; }
         public static int TimeSetTo { get; set; }
+        public static string boxRubrika { get; set; }
 
         public Form1()
         {
@@ -161,9 +162,15 @@ namespace FarpostCrowler
                             // Здесь проверяем соответствие ставкам
                             Console.WriteLine("Жмем - приклеить");
 
-                            // limitFrom - ставка от
-                            // limitTo - ставка до
-                            // fullLimit - верхняя граница
+                            // Переключаем на выбранную рубрику
+                            List<IWebElement> rubrika = driver.FindElements(By.XPath(String.Format("//span[contains(@class, 'competition-context-links__link-container')]/a[contains(text(), '{0}')]", boxRubrika))).ToList();
+                            if(rubrika.Count > 0)
+                            {
+                                Console.WriteLine($"Выбираем рубрику для работы: {boxRubrika}");
+                                IWebElement loneRub = rubrika.First();
+                                loneRub.Click();
+                                Thread.Sleep(rnd.Next(1500, 2500));
+                            }
 
                             // Читаем ставки на сайте
                             List<IWebElement> setForFirstPlace = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
@@ -173,6 +180,9 @@ namespace FarpostCrowler
                             // Проверяем лимит
                             if (setForFirstPlaceTxt <= fullLimit)
                             {
+                                IntervalSet run = new IntervalSet();
+                                run.Interval(TimeSetFrom, TimeSetTo);
+
                                 Console.WriteLine("Ставка за первое место в указанном диапазоне, ставим ставку за первое место + 2руб");
                                 IWebElement set = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
                                 set.Click();
@@ -191,17 +201,25 @@ namespace FarpostCrowler
                                 // Жмем приклеить
                                 IWebElement stickBtnF = driver.FindElement(By.XPath("//button[contains(@type, 'submit')]"));
                                 stickBtnF.Click();
+
+                                Thread.Sleep(rnd.Next(4500, 6500));
+
+                                // Подтверждение приклеивания объявления
+                                IWebElement stickAdv = driver.FindElement(By.XPath("//button[contains(@class, 'submit')]"));
+                                stickAdv.Click();
+
+                                // Шаг назад
+                                driver.Navigate().GoToUrl("https://www.farpost.ru/personal/actual/bulletins");
                             }
                             else
                             {
                                 Console.WriteLine("По объявлению превышен лимит, ничего не делаем с ним");
                             }
-
                         }
                         else
                         {
                             Console.WriteLine("Объявление не активно, шаг назад");
-                            driver.Navigate().GoToUrl("https://www.farpost.ru/personal/all/bulletins");
+                            driver.Navigate().GoToUrl("https://www.farpost.ru/personal/actual/bulletins");
                             Thread.Sleep(rnd.Next(1500, 2500));
                         }
                     }
@@ -243,6 +261,30 @@ namespace FarpostCrowler
         {
             TimeSetTo = Convert.ToInt32(timeToSetTo.Text);
         }
+
+        private void rubrikaBox_TextChanged(object sender, EventArgs e)
+        {
+            boxRubrika = rubrikaBox.Text;
+        }
+    }
+
+    /// <summary>
+    /// Пауза перед установкой ставки
+    /// </summary>
+    public class IntervalSet
+    {
+        Random rnd = new Random();
+
+        /// <summary>
+        /// Интервал паузы
+        /// </summary>
+        /// <param name="timeFrom"> Время От в мсек</param>
+        /// <param name="timeTo"> Время До в мсек</param>
+        public void Interval(int timeFrom, int timeTo)
+        {
+            Console.WriteLine($"Пауза перед применением ставки: {rnd.Next(timeFrom, timeTo)}");
+            Thread.Sleep(rnd.Next(timeFrom, timeTo));
+        }
     }
 
     public class ActionsOnWeb
@@ -275,6 +317,8 @@ namespace FarpostCrowler
 
         public static void TimeOfTheJobCheck(string startJob, string endJob)
         {
+            // добавить проверку на пустую строку со временем
+
             nowTime = DateTime.ParseExact(endJob, "HH:mm:ss", CultureInfo.GetCultureInfo("ru-RU"));
             DateTime dto = DateTime.ParseExact(startJob, "HH:mm:ss", CultureInfo.GetCultureInfo("ru-RU"));
 
