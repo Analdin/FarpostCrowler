@@ -238,7 +238,7 @@ namespace FarpostCrowler
                         List<IWebElement> advs = driver.FindElements(By.XPath("//div[contains(@class, 'bull-item-content__subject-container')]/a")).ToList();
                         foreach (var elm in advs)
                         {
-                            allAdvInCabLst.Add(elm.GetAttribute("name"));
+                            allAdvInCabLst.Add(elm.GetAttribute("href"));
                             Console.WriteLine(elm.Text);
                         }
 
@@ -247,16 +247,31 @@ namespace FarpostCrowler
                         // Переходим на каждое объявление и меняем ставки, согласно настройкам в программе
                         foreach (var elm in allAdvInCabLst)
                         {
-                            //div[contains(@class, 'bull-item-content__subject-container')]/a[contains(@name, '{0}')]
-                            List<IWebElement> loneElms = driver.FindElements(By.XPath(String.Format("//a[contains(@name,'{0}')]", Variables.idAdv))).ToList();
+                            //div[contains(@class, 'bull-item-content__subject-container')] / a[contains(@name, '{0}')]
+                            List<IWebElement> loneElms = driver.FindElements(By.XPath(String.Format("//a[contains(@href,'{0}')]", Variables.idAdv))).ToList();
                             if (loneElms.Count > 0)
                             {
-                                IWebElement one = loneElms.LastOrDefault();
+                                IWebElement one = loneElms.FirstOrDefault();
                                 one.Click();
                             }
 
+                            Thread.Sleep(8000);
+
+                            // Выбор рубрики для работы
+                            // Выбираем рубрику сначала
+                            List<IWebElement> rubrikaLst3 = driver.FindElements(By.XPath(String.Format("//span[contains(@class, 'competition-context-links__link-container')]/a[contains(text(), '{0}')]", Variables.boxRubrika))).ToList();
+                            if (rubrikaLst3.Count > 0)
+                            {
+                                Console.WriteLine($"Выбираем рубрику для работы: {Variables.boxRubrika}");
+                                IWebElement loneRub3 = rubrikaLst3.First();
+                                loneRub3.Click();
+                                Thread.Sleep(rnd.Next(1500, 2500));
+                            }
+
+                            //button[contains(@class, 'stick-form__save-button')]
+                            //a[contains(@class, 'serviceStick')]
                             // Проверяем наличие кнопки "приклеить" - если она есть, значит объявление активно
-                            List<IWebElement> stickBtn = driver.FindElements(By.XPath("//a[contains(@class, 'serviceStick')]")).ToList();
+                            List<IWebElement> stickBtn = driver.FindElements(By.XPath("//a[contains(@class, 'serviceStick')]|//button[contains(@class, 'stick-form__save-button')]")).ToList();
                             List<IWebElement> alreadySticked = driver.FindElements(By.XPath("//div[contains(@class, 'service-card-head__link')]")).ToList();
 
                             if (stickBtn.Count > 0)
@@ -264,10 +279,40 @@ namespace FarpostCrowler
                                 IWebElement lone = stickBtn.First();
                                 lone.Click();
 
-                                Thread.Sleep(rnd.Next(1500, 2500));
+                                Thread.Sleep(rnd.Next(12500, 13500));
 
                                 // Здесь проверяем соответствие ставкам
                                 Console.WriteLine("Жмем - приклеить");
+
+                                // Проверяем на появление - слишком частое применение запрещено
+                                List<IWebElement> offen = driver.FindElements(By.XPath("//div[contains(@class, 'checked-annotation')][2]/p")).ToList();
+                                if (offen.Count > 0)
+                                {
+                                    IWebElement of = offen.FirstOrDefault();
+
+                                    if (of.Text.Contains("Слишком частое применение услуги запрещено"))
+                                    {
+                                        Console.WriteLine("Пауза 2 минуты перед последующими действиями...");
+                                        Thread.Sleep(12000);
+
+                                        // Здесь переключиться на объявление
+                                        List<IWebElement> clkOnAdv = driver.FindElements(By.XPath("//button[contains(@id, 'serviceSubmit')]")).ToList();
+                                        if (clkOnAdv.Count > 0)
+                                        {
+                                            IWebElement clkA = clkOnAdv.FirstOrDefault();
+                                            clkA.Click();
+                                            Thread.Sleep(rnd.Next(1500, 2500));
+                                        }
+
+                                        List<IWebElement> stickedLst = driver.FindElements(By.XPath("//div[contains(@class, 'serviceStick')]/div")).ToList();
+                                        if (stickedLst.Count > 0)
+                                        {
+                                            IWebElement st = stickedLst.FirstOrDefault();
+                                            st.Click();
+                                            Thread.Sleep(rnd.Next(1500, 2500));
+                                        }
+                                    }
+                                }
 
                                 Thread.Sleep(rnd.Next(1500, 2500));
                                 // Переключаем на выбранную рубрику
@@ -278,6 +323,15 @@ namespace FarpostCrowler
                                     IWebElement loneRub = rubrika.First();
                                     loneRub.Click();
                                     Thread.Sleep(rnd.Next(1500, 2500));
+                                }
+
+                                // Переключаем на объявление
+                                List<IWebElement> stick = driver.FindElements(By.XPath("//div[contains(@class, 'serviceStick')]")).ToList();
+                                if(stick.Count > 0)
+                                {
+                                    IWebElement st = stick.FirstOrDefault();
+                                    st.Click();
+                                    Thread.Sleep(2000);
                                 }
 
                                 // Читаем ставки на сайте
@@ -346,15 +400,48 @@ namespace FarpostCrowler
                                     //    worksheet.Dispose();
                                     //}
 
+                                    Thread.Sleep(3000);
+
+                                    // Выбираем рубрику сначала
+                                    List<IWebElement> rubrikaLst2 = driver.FindElements(By.XPath(String.Format("//span[contains(@class, 'competition-context-links__link-container')]/a[contains(text(), '{0}')]", rubrika))).ToList();
+                                    if (rubrikaLst2.Count > 0)
+                                    {
+                                        Console.WriteLine($"Выбираем рубрику для работы: {rubrika}");
+                                        IWebElement loneRub2 = rubrikaLst2.First();
+                                        loneRub2.Click();
+                                        Thread.Sleep(rnd.Next(1500, 2500));
+                                    }
+
                                     // Жмем приклеить
-                                    IWebElement stickBtnF = driver.FindElement(By.XPath("//button[contains(@type, 'submit')]"));
-                                    stickBtnF.Click();
+                                    List<IWebElement> stickBtnF = driver.FindElements(By.XPath("//button[contains(@type, 'submit')]")).ToList();
+                                    if(stickBtn.Count > 0)
+                                    {
+                                        IWebElement st = stickBtnF.FirstOrDefault();
+                                        st.Click();
+                                    }
 
-                                    Thread.Sleep(rnd.Next(1500, 2500));
+                                    Thread.Sleep(rnd.Next(6500, 7500));
 
-                                    // Подтверждение приклеивания объявления
-                                    IWebElement stickAdv = driver.FindElement(By.XPath("//button[contains(@class, 'submit')]"));
-                                    stickAdv.Click();
+                                    // Если баланс недостаточный
+                                    List<IWebElement> notEnoughtMoney = driver.FindElements(By.XPath("//div[contains(@class, 'block-lefted')]/div[contains(text(), 'Недостаточно средств на счете')]")).ToList();
+                                    if(notEnoughtMoney.Count > 0)
+                                    {
+                                        IWebElement ne = notEnoughtMoney.FirstOrDefault();
+                                        if(ne.Text.Contains("Недостаточно средств на счете"))
+                                        {
+                                            MessageBox.Show("Недостаточно средств на счете");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Подтверждение приклеивания объявления
+                                        List<IWebElement> stickAdv = driver.FindElements(By.XPath("//button[contains(@class, 'submit')]|//div[contains(@class, 'serviceStick')]")).ToList();
+                                        if (stickAdv.Count > 0)
+                                        {
+                                            IWebElement st1 = stickAdv.FirstOrDefault();
+                                            st1.Click();
+                                        }
+                                    }
 
                                     Console.WriteLine("Старт мониторинга объявлений");
                                     // Мониторим ставки конкурентов
@@ -528,8 +615,8 @@ namespace FarpostCrowler
                 List<IWebElement> listOfAdvs = driver.FindElements(By.XPath("//div[contains(@class, 'bull-item-content__subject-container')]/a")).ToList();
                 foreach (var index in listOfAdvs)
                 {
-                    allAdvs.Add(index.GetAttribute("name"));
-                    Console.WriteLine(index.GetAttribute("name"));
+                    allAdvs.Add(index.GetAttribute("href"));
+                    Console.WriteLine(index.GetAttribute("href"));
                 }
 
                 // Берем id с черного списка
@@ -568,19 +655,29 @@ namespace FarpostCrowler
                 //    package.Dispose();
             //}
 
-            if (allAdvs.Count > 0)
-            {
+            //if (allAdvs.Count > 0)
+            //{
                 allAdvs.RemoveAt(0);
-            }
+                allAdvs.RemoveAt(0);
+            //}
 
             for (int i = 0; i < allAdvs.Count; i++)
             {
                 string elm = allAdvs[i];
-                if(elm == myIndex)
+                if(elm.Contains(myIndex))
                 {
                     indexOfChar = i;
                     break;
                 }
+            }
+
+            // Если нужно - нажимаем кнопку приклеить объявление
+            List<IWebElement> stickAgain = driver.FindElements(By.XPath("//button[contains(@id,'serviceSubmit')]")).ToList();
+            if(stickAgain.Count > 0)
+            {
+                IWebElement sa = stickAgain.FirstOrDefault();
+                //sa.Click();
+                Thread.Sleep(4000);
             }
 
             TimeCheck.TimeOfTheJobCheck(driver, startTime, endTime);
@@ -608,39 +705,6 @@ namespace FarpostCrowler
                 IWebElement lonePrice = priceInWindow.First();
                 double priceInWinTxt = Convert.ToDouble(lonePrice.GetAttribute("value"));
 
-            // Проверяем что прописано в таблице, есть ли там ставка от
-            //string loginTxt = String.Empty;
-            //string passwordTxt = String.Empty;
-
-            //string inputFile3 = Directory.GetCurrentDirectory() + @"\Files\EnterData.xlsx";
-
-            //using (var package = new ExcelPackage(new FileInfo(inputFile3)))
-            //{
-            //    var sheet = package.Workbook.Worksheets[0];
-
-            //    count++;
-
-            //    int rows = sheet.Dimension.Rows + 1;
-            //    Console.WriteLine("rows - " + rows);
-
-            //    if (count >= rows)
-            //    {
-            //        Console.WriteLine("Прошли все строки в таблице");
-            //        Environment.Exit(0);
-            //    }
-
-            //    var cellValueA = sheet.Cells[$"A{count}"].Value;
-            //    limitStart = cellValueA != null ? cellValueA.ToString() : string.Empty;
-
-            //    var cellValueB = sheet.Cells[$"B{count}"].Value;
-            //    limitStop = cellValueB != null ? cellValueB.ToString() : string.Empty;
-
-            //    stepByStep = sheet.Cells[$"L{count}"].Value.ToString();
-            //    Console.WriteLine("Ставка от: " + limitStart);
-            //    Console.WriteLine("Ставка до: " + limitStop);
-            //    Console.WriteLine("Шаг ставки: " + stepByStep);
-            //}
-
             if (Variables.limitStart > 0)
             {
                 // Читаем ставки на сайте
@@ -657,14 +721,6 @@ namespace FarpostCrowler
                 double LS = Convert.ToDouble(limitStart);
 
                 LS = loneTxt + Convert.ToDouble(stepByStep);
-                // Записываем новое значение ставки в таблицу
-                //using(var package = new ExcelPackage(new FileInfo(Directory.GetCurrentDirectory() + @"\Files\EnterData.xlsx")))
-                //{
-                //    ExcelWorksheet worksheet = package.Workbook.Worksheets["Лист1"];
-                //    worksheet.Cells[count, 1].Value = LS;
-                //    package.Save();
-                //    worksheet.Dispose();
-                //}
 
                 if (Convert.ToDouble(loneTxt) <= LS)
                 {
@@ -736,16 +792,7 @@ namespace FarpostCrowler
                         List<string> allIds = new List<string>();
                         int ourIndex = 0;
 
-                        // Цикл по подбору 1ого места                        
-                        Clipboard.SetText(Convert.ToString(setForTheFirst));
-                        // Ставка
-                        //IWebElement stickSet1 = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
-                        //stickSet1.SendKeys(OpenQA.Selenium.Keys.Control + "a");
-                        //stickSet1.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
-                        //stickSet1.SendKeys(OpenQA.Selenium.Keys.Control + "v");
-
-                        //double priceMinus = setForTheFirst - (setForTheFirst * 0.06);
-
+                        // Цикл по подбору 1ого места
                         Clipboard.SetText(Convert.ToString(setForTheFirst));
                         // Ставка
                         IWebElement stickSet2 = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
@@ -942,7 +989,7 @@ namespace FarpostCrowler
                     {
                         Console.WriteLine($"Выбираем рубрику для работы: {rubrika}");
                         IWebElement loneRub = rubrikaLst22.First();
-                        loneRub.Click();
+                        //loneRub.Click();
                         Thread.Sleep(rnd.Next(1500, 2500));
                     }
                 }
@@ -1005,43 +1052,6 @@ namespace FarpostCrowler
                         Console.WriteLine(elm);
                     }
 
-                    //string filePath = Directory.GetCurrentDirectory() + @"\Files\EnterData.xlsx";
-
-                    // Проверяем - есть ли объявления в черном списке
-                    //using (var package = new ExcelPackage(new FileInfo(filePath)))
-                    //{
-                    //    var sheet = package.Workbook.Worksheets[0];
-                    //    Variables.idInBlack = sheet.Cells[$"M{count + 1}"].Value.ToString();
-                    //    Console.WriteLine("Id в черном списке: " + Variables.idInBlack);
-                    //}
-
-                    // Проверяем какие объявления стоят выше нашего
-                    //Console.WriteLine("Проверяем какие объявления стоят выше");
-                    //List<string> idBlackLst = new List<string>(Variables.idInBlack.Split(','));
-
-                    //foreach(var elm in idBlackLst)
-                    //{
-                    //    for(int u = 0; u < allAdvInCabLst.Count; u++)
-                    //    {
-                    //        if (allAdvInCabLst[u].Contains(elm))
-                    //        {
-                    //            allAdvInCabLst.RemoveAt(u);
-                    //            Console.WriteLine($"Из общего списка удален ID - {elm}");
-                    //        }
-                    //    }
-                    //}
-
-                    // Еще раз проверяем какие id остались в списке allAdvInCabLst
-                    // Идем по списку, вычисляем Index нашего объявления
-                    //for (int u = 0; u < allAdvInCabLst.Count; u++)
-                    //{
-                    //    if(allAdvInCabLst[u].Contains(Variables.idAdv))
-                    //    {
-                    //        Console.WriteLine($"Обновленный индекс нашего объявления - {allAdvInCabLst.IndexOf(Variables.idAdv)}");
-                    //        break;
-                    //    }
-                    //}
-
                     // Условие - если индекс 0 или 1, то просто сохраняем ставку, если дальше, то меняем
                     if(allAdvInCabLst.IndexOf(Variables.idAdv) == 0 || allAdvInCabLst.IndexOf(Variables.idAdv) == 1)
                     {
@@ -1056,54 +1066,54 @@ namespace FarpostCrowler
                         stickSet2.SendKeys(OpenQA.Selenium.Keys.Control + "v");
 
                         // Проверяем место на котором наше объявление сейчас
-                        //Clipboard.SetText(Convert.ToString(priceInWinTxt));
-                        //double newPrice = 0;
+                        Clipboard.SetText(Convert.ToString(priceInWinTxt));
+                        double newPrice = 0;
 
                         //// Цикл по подбору 1ого места                        
-                        //Clipboard.SetText(Convert.ToString(setForFirstPlaceTxt));
+                        Clipboard.SetText(Convert.ToString(setForFirstPlaceTxt));
 
-                        //while (true)
-                        //{
-                        //    allIds.Clear();
-                        //    // Выстраиваем список из id всех объявлений на странице
-                        //    List<IWebElement> allIdsNow = driver.FindElements(By.XPath("//div[contains(@class, 'bull-item-content__content-wrapper')]//div[contains(@class, 'bull-item-content__subject-container')]/a")).ToList();
-                        //    if (allIdsNow.Count > 0)
-                        //    {
-                        //        // Проверить - вопрос с индексом ??
-                        //        for (int i = 0; i < allIdsNow.Count; i++)
-                        //        {
-                        //            Variables.nowPlace = allIdsNow[i];
-                        //            allIds.Add(Variables.nowPlace.GetAttribute("name"));
-                        //            Console.WriteLine("Добавляем id - " + Variables.nowPlace.GetAttribute("name"));
+                        while (true)
+                        {
+                            allIds.Clear();
+                            // Выстраиваем список из id всех объявлений на странице
+                            List<IWebElement> allIdsNow = driver.FindElements(By.XPath("//div[contains(@class, 'bull-item-content__content-wrapper')]//div[contains(@class, 'bull-item-content__subject-container')]/a")).ToList();
+                            if (allIdsNow.Count > 0)
+                            {
+                                // Проверить - вопрос с индексом ??
+                                for (int i = 0; i < allIdsNow.Count; i++)
+                                {
+                                    Variables.nowPlace = allIdsNow[i];
+                                    allIds.Add(Variables.nowPlace.GetAttribute("name"));
+                                    Console.WriteLine("Добавляем id - " + Variables.nowPlace.GetAttribute("name"));
 
-                        //            // Получаем индекс нашего id
-                        //            if (Variables.nowPlace.Text.Contains(Variables.idAdv))
-                        //            {
-                        //                Console.WriteLine($"Нашли свое объявление на {allIds.IndexOf(Variables.idAdv)} месте");
-                        //            }
+                                    // Получаем индекс нашего id
+                                    if (Variables.nowPlace.Text.Contains(Variables.idAdv))
+                                    {
+                                        Console.WriteLine($"Нашли свое объявление на {allIds.IndexOf(Variables.idAdv)} месте");
+                                    }
 
-                        //            // Если id != 1
-                        //            if (allIdsNow.IndexOf(Variables.nowPlace) != 0)
-                        //            {
-                        //                Console.WriteLine($"Наше объявление на {allIds.IndexOf(Variables.idAdv)} месте");
-                        //                Console.WriteLine("Объвление еще не на первом месте, прибавляем +1 к ставке");
-                        //                newPrice = newPrice + 1;
-                        //                //break;
-                        //            }
-                        //        }
+                                    // Если id != 1
+                                    if (allIdsNow.IndexOf(Variables.nowPlace) != 0)
+                                    {
+                                        Console.WriteLine($"Наше объявление на {allIds.IndexOf(Variables.idAdv)} месте");
+                                        Console.WriteLine("Объвление еще не на первом месте, прибавляем +1 к ставке");
+                                        newPrice = newPrice + 1;
+                                        //break;
+                                    }
+                                }
 
-                        //        setForFirstPlaceTxt = setForFirstPlaceTxt + 1;
+                                setForFirstPlaceTxt = setForFirstPlaceTxt + 1;
 
-                        //        Clipboard.SetText(Convert.ToString(setForFirstPlaceTxt));
-                        //        // Ставка
-                        //        IWebElement stickSet3 = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
-                        //        stickSet3.SendKeys(OpenQA.Selenium.Keys.Control + "a");
-                        //        stickSet3.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
-                        //        stickSet3.SendKeys(OpenQA.Selenium.Keys.Control + "v");
+                                Clipboard.SetText(Convert.ToString(setForFirstPlaceTxt));
+                                // Ставка
+                                IWebElement stickSet3 = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
+                                stickSet3.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                                stickSet3.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
+                                stickSet3.SendKeys(OpenQA.Selenium.Keys.Control + "v");
 
-                        //        //if (allIdsNow.IndexOf(Variables.nowPlace) == 0 || allIdsNow.IndexOf(Variables.nowPlace) == 1) break;
-                        //    }
-                        //}
+                                //if (allIdsNow.IndexOf(Variables.nowPlace) == 0 || allIdsNow.IndexOf(Variables.nowPlace) == 1) break;
+                            }
+                        }
                     }
 
                     Thread.Sleep(rnd.Next(1500, 2500));
