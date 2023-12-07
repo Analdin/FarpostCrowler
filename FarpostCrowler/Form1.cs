@@ -138,7 +138,7 @@ namespace FarpostCrowler
                 Console.WriteLine("Загружаем куки");
                 //Читаем куки из файла:
                 string path = Directory.GetCurrentDirectory() + @"\ProfCookie\cookie.txt";
-                if(File.Exists(path))
+                if (File.Exists(path))
                 {
                     using (StreamReader sr = new StreamReader(path))
                     {
@@ -163,7 +163,7 @@ namespace FarpostCrowler
                 {
                     // Проверка на залогин
                     List<IWebElement> loginYes = driver.FindElements(By.XPath("//td[contains(@class, 'col_login')]/a/i")).ToList();
-                    if(loginYes.Count > 0)
+                    if (loginYes.Count > 0)
                     {
                         Console.WriteLine("Вход уже выполнен");
                     }
@@ -228,7 +228,7 @@ namespace FarpostCrowler
                     Thread.Sleep(rnd.Next(1500, 2500));
 
                     // Цикл проверки объявлений и изменения ставок
-                    while(true)
+                    while (true)
                     {
                         // Проверяем время выключения программы
 
@@ -327,7 +327,7 @@ namespace FarpostCrowler
 
                                 // Переключаем на объявление
                                 List<IWebElement> stick = driver.FindElements(By.XPath("//div[contains(@class, 'serviceStick')]")).ToList();
-                                if(stick.Count > 0)
+                                if (stick.Count > 0)
                                 {
                                     IWebElement st = stick.FirstOrDefault();
                                     st.Click();
@@ -414,7 +414,7 @@ namespace FarpostCrowler
 
                                     // Жмем приклеить
                                     List<IWebElement> stickBtnF = driver.FindElements(By.XPath("//button[contains(@type, 'submit')]")).ToList();
-                                    if(stickBtn.Count > 0)
+                                    if (stickBtn.Count > 0)
                                     {
                                         IWebElement st = stickBtnF.FirstOrDefault();
                                         st.Click();
@@ -424,10 +424,10 @@ namespace FarpostCrowler
 
                                     // Если баланс недостаточный
                                     List<IWebElement> notEnoughtMoney = driver.FindElements(By.XPath("//div[contains(@class, 'block-lefted')]/div[contains(text(), 'Недостаточно средств на счете')]")).ToList();
-                                    if(notEnoughtMoney.Count > 0)
+                                    if (notEnoughtMoney.Count > 0)
                                     {
                                         IWebElement ne = notEnoughtMoney.FirstOrDefault();
-                                        if(ne.Text.Contains("Недостаточно средств на счете"))
+                                        if (ne.Text.Contains("Недостаточно средств на счете"))
                                         {
                                             MessageBox.Show("Недостаточно средств на счете");
                                         }
@@ -472,7 +472,7 @@ namespace FarpostCrowler
                                 break;
                             }
                         }
-                    if(stop) break;
+                        if (stop) break;
                     }
                 }
                 TimeCheck.TimeOfTheJobCheck(driver, TimeStart, TimeEnd);
@@ -585,14 +585,31 @@ namespace FarpostCrowler
             List<string> allAdvs = new List<string>();
 
             // Здесь проверкаи изменения ставки
+            // Приклеиваем объявление
+            List<IWebElement> stickAdv = driver.FindElements(By.XPath("//button[contains(@id,'serviceSubmit')]")).ToList();
+            if (stickAdv.Count > 0)
+            {
+                IWebElement sa = stickAdv.FirstOrDefault();
+                sa.Click();
+                Thread.Sleep(3000);
+            }
+
+            // Клик на приклеено
+            List<IWebElement> stickedLst = driver.FindElements(By.XPath("//div[contains(@class, 'serviceStick')]")).ToList();
+            if (stickedLst.Count > 0)
+            {
+                IWebElement sl = stickedLst.FirstOrDefault();
+                sl.Click();
+                Thread.Sleep(3000);
+            }
 
             // К этом моменту находимся внутри объявления, жмем на надпись "приклеено за...", чтобы перейти к списку объявлений
             List<IWebElement> stickedPrice = driver.FindElements(By.XPath("//div[contains(@class, 'service-card-head__link')]")).ToList();
-            if(stickedPrice.Count > 0)
+            if (stickedPrice.Count > 0)
             {
                 IWebElement lone = stickedPrice.First();
                 lone.Click();
-                Thread.Sleep(rnd.Next(1500,2500));
+                Thread.Sleep(rnd.Next(1500, 2500));
             }
 
             Thread.Sleep(rnd.Next(1500, 2500));
@@ -607,9 +624,15 @@ namespace FarpostCrowler
             }
 
             // Цикл контроля объявлений
-            //while (true)
-            //{
+            while (true)
+            {
                 int indexOfChar = 0;
+
+                // обновление страницы
+                string url = driver.Url;
+                driver.Navigate().GoToUrl(url);
+
+                Thread.Sleep(3000);
 
                 allAdvs.Clear();
                 List<IWebElement> listOfAdvs = driver.FindElements(By.XPath("//div[contains(@class, 'bull-item-content__subject-container')]/a")).ToList();
@@ -619,558 +642,649 @@ namespace FarpostCrowler
                     Console.WriteLine(index.GetAttribute("href"));
                 }
 
-                // Берем id с черного списка
-                //string inputFile = Directory.GetCurrentDirectory() + @"\Files\EnterData.xlsx";
-
-                //using (var package = new ExcelPackage(new FileInfo(inputFile)))
-                //{
-                //    var sheet = package.Workbook.Worksheets[0];
-
-                //    var cellValueA = sheet.Cells[$"M{count+1}"].Value;
-                //    string blacklist = cellValueA != null ? cellValueA.ToString() : string.Empty;
-                //    Console.WriteLine("Id в списке исключения: " + blacklist);
-
-                //    List<string> values = new List<string>(blacklist.Split(','));
-                //    // Удаляем лишние пробелы в начале и конце каждого элемента списка
-                //    for (int i = 0; i < values.Count; i++)
-                //    {
-                //        values[i] = values[i].Trim();
-                //    }
-
-                //    for (int y = 0; y < allAdvs.Count; y++)
-                //    {
-                //        string elm = allAdvs[y];
-
-                //        foreach(var val in values)
-                //        {
-                //            if (elm.Equals(val))
-                //            {
-                //                allAdvs.Remove(elm);
-                //                Console.WriteLine($"Удален id с черного списка - {elm}");
-                //            }
-                //        }
-                //        Console.WriteLine(elm);
-                //    }
-
-                //    package.Dispose();
-            //}
-
-            //if (allAdvs.Count > 0)
-            //{
                 allAdvs.RemoveAt(0);
                 allAdvs.RemoveAt(0);
-            //}
 
-            for (int i = 0; i < allAdvs.Count; i++)
-            {
-                string elm = allAdvs[i];
-                if(elm.Contains(myIndex))
+
+                for (int i = 0; i < allAdvs.Count; i++)
                 {
-                    indexOfChar = i;
-                    break;
-                }
-            }
-
-            // Если нужно - нажимаем кнопку приклеить объявление
-            List<IWebElement> stickAgain = driver.FindElements(By.XPath("//button[contains(@id,'serviceSubmit')]")).ToList();
-            if(stickAgain.Count > 0)
-            {
-                IWebElement sa = stickAgain.FirstOrDefault();
-                //sa.Click();
-                Thread.Sleep(4000);
-            }
-
-            TimeCheck.TimeOfTheJobCheck(driver, startTime, endTime);
-
-            if (indexOfChar == 1)
-            {
-                // Запоминаем страницу на которой находимся
-                string url = driver.Url;
-                Console.WriteLine("Текущий url: " + url);
-
-                // Читаем ставки на сайте
-                List<IWebElement> setForFirstPlace = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
-                double setForFirstPlaceTxt = Convert.ToDouble(setForFirstPlace.First().Text);
-                double minPriceSetTxt = Convert.ToDouble(setForFirstPlace.Last().Text);
-
-                if(setForFirstPlace.Count == 0)
-                {
-                    // Переключаем обратно на объявление
-                    driver.Navigate().GoToUrl(url);
-                    Thread.Sleep(rnd.Next(200, 500));
+                    string elm = allAdvs[i];
+                    if (elm.Contains(myIndex))
+                    {
+                        indexOfChar = i;
+                        break;
+                    }
                 }
 
-                // Цена в окошке
-                List<IWebElement> priceInWindow = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
-                IWebElement lonePrice = priceInWindow.First();
-                double priceInWinTxt = Convert.ToDouble(lonePrice.GetAttribute("value"));
-
-            if (Variables.limitStart > 0)
-            {
-                // Читаем ставки на сайте
-                List<IWebElement> setOnSite = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
-                double setForTheFirst = Convert.ToDouble(setForFirstPlace.First().Text);
-                double minPrice = Convert.ToDouble(setForFirstPlace.Last().Text);
-
-                // Цена в окошке
-                List<IWebElement> priceNow = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
-                IWebElement priceLOne = priceInWindow.First();
-                double loneTxt = Convert.ToDouble(lonePrice.GetAttribute("value"));
-                Console.WriteLine($"Текущая установленная ставка за 1 место - {loneTxt} руб");
-
-                double LS = Convert.ToDouble(limitStart);
-
-                LS = loneTxt + Convert.ToDouble(stepByStep);
-
-                if (Convert.ToDouble(loneTxt) <= LS)
+                // Если нужно - нажимаем кнопку приклеить объявление
+                List<IWebElement> stickAgain = driver.FindElements(By.XPath("//button[contains(@id,'serviceSubmit')]")).ToList();
+                if (stickAgain.Count > 0)
                 {
-                    Console.WriteLine($"Шаг ставки - {stepByStep}, применяем");
-                    Console.WriteLine("Ставка за первое место в указанном диапазоне, ставим ставку за первое место");
-                    IWebElement set = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
-                    set.Click();
+                    IWebElement sa = stickAgain.FirstOrDefault();
+                    //sa.Click();
+                    Thread.Sleep(4000);
+                }
 
-                    Thread.Sleep(rnd.Next(1500, 2500));
+                TimeCheck.TimeOfTheJobCheck(driver, startTime, endTime);
 
-                    //BidCounting bid = new BidCounting();
-                    //bid.bidSet(driver);
+                // Сохранить куки
+                // Записываем куки в файл
+                string path = Directory.GetCurrentDirectory() + @"\ProfCookie\cookie.txt";
 
-                    // Тут подбор ставки. Пример: 170*0,06 получаем пониженную ставку,
-                    // затем прибавляем +1 до первого места.
+                Console.WriteLine("Сохраняем куки: " + path);
 
-                    if (setForTheFirst > LS)
+                using (StreamWriter sw = new StreamWriter(path))
+                {
+                    foreach (var cookie in driver.Manage().Cookies.AllCookies)
                     {
-                        // Вычисление шага между местами 1 и 2
-                        List<IWebElement> step1 = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
-                        double firstSet = Convert.ToDouble(setForFirstPlace.First().Text);
-                        double minP = Convert.ToDouble(setForFirstPlace.Last().Text);
+                        sw.WriteLine(cookie.Name + ";" + cookie.Value + ";" + cookie.Domain + ";" + cookie.Path + ";" + cookie.Expiry.ToString());
+                    }
+                    sw.Close();
+                }
+
+                if (indexOfChar > 0)
+                {
+                    // Запоминаем страницу на которой находимся
+                    string url2 = driver.Url;
+                    Console.WriteLine("Текущий url: " + url2);
+
+                    // Читаем ставки на сайте
+                    List<IWebElement> setForFirstPlace = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
+                    double setForFirstPlaceTxt = Convert.ToDouble(setForFirstPlace.First().Text);
+                    double minPriceSetTxt = Convert.ToDouble(setForFirstPlace.Last().Text);
+
+                    if (setForFirstPlace.Count == 0)
+                    {
+                        // Переключаем обратно на объявление
+                        driver.Navigate().GoToUrl(url);
+                        Thread.Sleep(rnd.Next(200, 500));
+                    }
+
+                    // Цена в окошке
+                    List<IWebElement> priceInWindow = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
+                    IWebElement lonePrice = priceInWindow.First();
+                    double priceInWinTxt = Convert.ToDouble(lonePrice.GetAttribute("value"));
+
+                    if (Variables.limitStart > 0)
+                    {
+                        // Читаем ставки на сайте
+                        List<IWebElement> setOnSite = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
+                        double setForTheFirst = Convert.ToDouble(setForFirstPlace.First().Text);
+                        double minPrice = Convert.ToDouble(setForFirstPlace.Last().Text);
 
                         // Цена в окошке
-                        List<IWebElement> prInWin = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
-                        IWebElement prLone = priceInWindow.First();
-                        double pLone = Convert.ToDouble(lonePrice.GetAttribute("value"));
-                        Console.WriteLine($"Текущая установленная ставка за 1 место - {pLone} руб");
+                        List<IWebElement> priceNow = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
+                        IWebElement priceLOne = priceInWindow.First();
+                        double loneTxt = Convert.ToDouble(lonePrice.GetAttribute("value"));
+                        Console.WriteLine($"Текущая установленная ставка за 1 место - {loneTxt} руб");
 
-                        // Клик на стрелку
-                        List<IWebElement> spin_down = driver.FindElements(By.XPath("//button[contains(@class, 'spins__spin_down')]")).ToList();
-                        if(spin_down.Count > 0)
+                        double LS = Convert.ToDouble(limitStart);
+
+                        LS = loneTxt + Convert.ToDouble(stepByStep);
+
+                        if (Convert.ToDouble(loneTxt) <= LS)
                         {
-                            IWebElement spin = spin_down.FirstOrDefault();
-                            spin.Click();
-                            Thread.Sleep(2000);
+                            Console.WriteLine($"Шаг ставки - {stepByStep}, применяем");
+                            Console.WriteLine("Ставка за первое место в указанном диапазоне, ставим ставку за первое место");
+                            IWebElement set = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
+                            set.Click();
 
-                            // Проверяем изменененную ставку
-                            // Цена в окошке
-                            List<IWebElement> prWithStep = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
-                            IWebElement prStep = priceInWindow.First();
-                            double prS = Convert.ToDouble(lonePrice.GetAttribute("value"));
-                            Console.WriteLine($"Новая цена - {prS} руб");
-                        }
-
-
-                        Clipboard.SetText(Convert.ToString(setForTheFirst));
-                        // Ставка
-                        IWebElement stick = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
-                        stick.SendKeys(OpenQA.Selenium.Keys.Control + "a");
-                        stick.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
-                        stick.SendKeys(OpenQA.Selenium.Keys.Control + "v");
-
-
-                    }
-                    else if (setForTheFirst < LS)
-                    {
-                        // Вычисление шага между местами 1 и 2
-                        List<IWebElement> step1 = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
-                        double firstSet = Convert.ToDouble(setForFirstPlace.First().Text);
-                        double minP = Convert.ToDouble(setForFirstPlace.Last().Text);
-
-                        // Цена в окошке
-                        List<IWebElement> prInWin = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
-                        IWebElement prLone = priceInWindow.First();
-                        double pLone = Convert.ToDouble(lonePrice.GetAttribute("value"));
-                        Console.WriteLine($"Текущая установленная ставка за 1 место - {pLone} руб");
-
-                        List<string> allIds = new List<string>();
-                        int ourIndex = 0;
-
-                        // Цикл по подбору 1ого места
-                        Clipboard.SetText(Convert.ToString(setForTheFirst));
-                        // Ставка
-                        IWebElement stickSet2 = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
-                        stickSet2.SendKeys(OpenQA.Selenium.Keys.Control + "a");
-                        stickSet2.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
-                        stickSet2.SendKeys(OpenQA.Selenium.Keys.Control + "v");
-
-                        // Проверяем место на котором наше объявление сейчас
-                        Clipboard.SetText(Convert.ToString(setForTheFirst));
-                        // Выстраиваем список из id всех объявлений на странице
-                        List<IWebElement> allIdsNow = driver.FindElements(By.XPath("//tbody[contains(@class, 'native')]/tr[contains(@data-doc-id,'')]")).ToList();
-                        if(allIdsNow.Count > 0)
-                        {
-                            foreach(var elm in allIdsNow)
-                            {
-                                allIds.Add(elm.Text);
-                                Console.WriteLine("Добавляем id - " + elm.Text);
-
-                                // Получаем индекс нашего id
-                                if (elm.Text.Contains(Variables.idAdv))
-                                {
-                                    Console.WriteLine($"Нашли свое объявление на {allIdsNow.IndexOf(elm)} месте");
-                                    break;
-                                }
-
-                                // Если id != 1
-                                if(allIdsNow.IndexOf(elm) != 1)
-                                {
-                                    //Console.WriteLine("Объвление еще не на первом месте, прибавляем +1 к ставке");
-                                    //priceMinus = priceMinus + 1;
-                                }
-                            }
-                        }
-
-                        Console.WriteLine("Ставка за первое место понизилась - ставим ставку за первое место");
-                        // Проверка - на сколько понизилась ставка?
-                        //priceMinus = priceMinus + 1;
-                        Clipboard.SetText(Convert.ToString(setForTheFirst));
-                        // Ставка
-                        IWebElement stickSet = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
-                        stickSet.SendKeys(OpenQA.Selenium.Keys.Control + "a");
-                        stickSet.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
-                        stickSet.SendKeys(OpenQA.Selenium.Keys.Control + "v");
-                    }
-
-                    // Тут цикл по подбору ставки +1
-
-                    Thread.Sleep(rnd.Next(1500, 2500));
-
-                    // Жмем приклеить
-                    IWebElement stickBtnF = driver.FindElement(By.XPath("//button[contains(@type, 'submit')]"));
-                    stickBtnF.Click();
-
-                    Thread.Sleep(rnd.Next(4500, 6500));
-
-                    // Сохранить куки
-                    // Записываем куки в файл
-                    string path = Directory.GetCurrentDirectory() + @"\ProfCookie\cookie.txt";
-
-                    Console.WriteLine("Сохраняем куки: " + path);
-
-                    using (StreamWriter sw = new StreamWriter(path))
-                    {
-                        foreach (var cookie in driver.Manage().Cookies.AllCookies)
-                        {
-                            sw.WriteLine(cookie.Name + ";" + cookie.Value + ";" + cookie.Domain + ";" + cookie.Path + ";" + cookie.Expiry.ToString());
-                        }
-                        sw.Close();
-                    }
-
-                    // Подтверждение приклеивания объявления
-                    List<IWebElement> payed = driver.FindElements(By.XPath("//div[contains(@class, 'bulletin-user-action-block')]")).ToList();
-                    if (payed.Count > 0)
-                    {
-                        IWebElement lone = payed.First();
-                        string txt = lone.Text;
-                        if (txt.Contains("Оплачено"))
-                        {
-                            Console.WriteLine("Уже приклеено, мониторим...");
-                            // Жмем на "приклеено", чтобы отобразить список объявлений
-                            IWebElement alreadyStick = driver.FindElement(By.XPath("//div[contains(@class, 'serviceStick')]"));
-                            alreadyStick.Click();
                             Thread.Sleep(rnd.Next(1500, 2500));
 
-                            // Переключаем на выбранную рубрику
-                            List<IWebElement> needRub = driver.FindElements(By.XPath(String.Format("//span[contains(@class, 'competition-context-links__link-container')]/a[contains(text(), '{0}')]", rubrika))).ToList();
-                            if (needRub.Count > 0)
+                            //BidCounting bid = new BidCounting();
+                            //bid.bidSet(driver);
+
+                            // Тут подбор ставки. Пример: 170*0,06 получаем пониженную ставку,
+                            // затем прибавляем +1 до первого места.
+
+                            if (setForTheFirst > LS)
                             {
-                                Console.WriteLine($"Выбираем рубрику для работы: {rubrika}");
-                                IWebElement loneRub = needRub.First();
-                                loneRub.Click();
-                                Thread.Sleep(rnd.Next(1500, 2500));
+                                // Вычисление шага между местами 1 и 2
+                                List<IWebElement> step1 = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
+                                double firstSet = Convert.ToDouble(setForFirstPlace.First().Text);
+                                double minP = Convert.ToDouble(setForFirstPlace.Last().Text);
+
+                                // Цена в окошке
+                                List<IWebElement> prInWin = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
+                                IWebElement prLone = priceInWindow.First();
+                                double pLone = Convert.ToDouble(lonePrice.GetAttribute("value"));
+                                Console.WriteLine($"Текущая установленная ставка за 1 место - {pLone} руб");
+
+                                // Клик на стрелку
+                                List<IWebElement> spin_down = driver.FindElements(By.XPath("//button[contains(@class, 'spins__spin_down')]")).ToList();
+                                if (spin_down.Count > 0)
+                                {
+                                    IWebElement spin = spin_down.FirstOrDefault();
+                                    spin.Click();
+                                    Thread.Sleep(2000);
+
+                                    // Проверяем изменененную ставку
+                                    // Цена в окошке
+                                    List<IWebElement> prWithStep = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
+                                    IWebElement prStep = priceInWindow.First();
+                                    double prS = Convert.ToDouble(lonePrice.GetAttribute("value"));
+                                    Console.WriteLine($"Новая цена - {prS} руб");
+                                }
+
+
+                                Clipboard.SetText(Convert.ToString(setForTheFirst));
+                                // Ставка
+                                IWebElement stick = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
+                                stick.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                                stick.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
+                                stick.SendKeys(OpenQA.Selenium.Keys.Control + "v");
+
+
                             }
-                        }
-                        else
-                        {
-                            List<IWebElement> stickAdv = driver.FindElements(By.XPath("//button[contains(@class, 'submit')]")).ToList();
-                            if (stickAdv.Count > 0)
+                            else if (setForTheFirst < LS)
                             {
-                                IWebElement stick = stickAdv.First();
-                                stick.Click();
-                                Thread.Sleep(rnd.Next(1500, 2500));
+                                // Вычисление шага между местами 1 и 2
+                                List<IWebElement> step1 = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
+                                double firstSet = Convert.ToDouble(setForFirstPlace.First().Text);
+                                double minP = Convert.ToDouble(setForFirstPlace.Last().Text);
+
+                                // Цена в окошке
+                                List<IWebElement> prInWin = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
+                                IWebElement prLone = priceInWindow.First();
+                                double pLone = Convert.ToDouble(lonePrice.GetAttribute("value"));
+                                Console.WriteLine($"Текущая установленная ставка за 1 место - {pLone} руб");
+
+                                List<string> allIds = new List<string>();
+                                int ourIndex = 0;
+
+                                // Цикл по подбору 1ого места
+                                Clipboard.SetText(Convert.ToString(setForTheFirst));
+                                // Ставка
+                                IWebElement stickSet2 = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
+                                stickSet2.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                                stickSet2.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
+                                stickSet2.SendKeys(OpenQA.Selenium.Keys.Control + "v");
+
+                                // Проверяем место на котором наше объявление сейчас
+                                Clipboard.SetText(Convert.ToString(setForTheFirst));
+                                // Выстраиваем список из id всех объявлений на странице
+                                List<IWebElement> allIdsNow = driver.FindElements(By.XPath("//tbody[contains(@class, 'native')]/tr[contains(@data-doc-id,'')]")).ToList();
+                                if (allIdsNow.Count > 0)
+                                {
+                                    foreach (var elm in allIdsNow)
+                                    {
+                                        allIds.Add(elm.Text);
+                                        Console.WriteLine("Добавляем id - " + elm.Text);
+
+                                        // Получаем индекс нашего id
+                                        if (elm.Text.Contains(Variables.idAdv))
+                                        {
+                                            Console.WriteLine($"Нашли свое объявление на {allIdsNow.IndexOf(elm)} месте");
+                                            break;
+                                        }
+
+                                        // Если id != 1
+                                        if (allIdsNow.IndexOf(elm) != 1)
+                                        {
+                                            //Console.WriteLine("Объвление еще не на первом месте, прибавляем +1 к ставке");
+                                            //priceMinus = priceMinus + 1;
+                                        }
+                                    }
+                                }
+
+                                Console.WriteLine("Ставка за первое место понизилась - ставим ставку за первое место");
+                                // Проверка - на сколько понизилась ставка?
+                                //priceMinus = priceMinus + 1;
+                                Clipboard.SetText(Convert.ToString(setForTheFirst));
+                                // Ставка
+                                IWebElement stickSet = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
+                                stickSet.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                                stickSet.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
+                                stickSet.SendKeys(OpenQA.Selenium.Keys.Control + "v");
                             }
+
+                            // Тут цикл по подбору ставки +1
+
+                            Thread.Sleep(rnd.Next(1500, 2500));
+
+                            // Жмем приклеить
+                            IWebElement stickBtnF = driver.FindElement(By.XPath("//button[contains(@type, 'submit')]"));
+                            stickBtnF.Click();
+
+                            Thread.Sleep(rnd.Next(4500, 6500));
+
+                            // Подтверждение приклеивания объявления
+                            List<IWebElement> payed = driver.FindElements(By.XPath("//div[contains(@class, 'bulletin-user-action-block')]")).ToList();
+                            if (payed.Count > 0)
+                            {
+                                IWebElement lone = payed.First();
+                                string txt = lone.Text;
+                                if (txt.Contains("Оплачено"))
+                                {
+                                    Console.WriteLine("Уже приклеено, мониторим...");
+                                    // Жмем на "приклеено", чтобы отобразить список объявлений
+                                    IWebElement alreadyStick = driver.FindElement(By.XPath("//div[contains(@class, 'serviceStick')]"));
+                                    alreadyStick.Click();
+                                    Thread.Sleep(rnd.Next(1500, 2500));
+
+                                    // Переключаем на выбранную рубрику
+                                    List<IWebElement> needRub = driver.FindElements(By.XPath(String.Format("//span[contains(@class, 'competition-context-links__link-container')]/a[contains(text(), '{0}')]", rubrika))).ToList();
+                                    if (needRub.Count > 0)
+                                    {
+                                        Console.WriteLine($"Выбираем рубрику для работы: {rubrika}");
+                                        IWebElement loneRub = needRub.First();
+                                        loneRub.Click();
+                                        Thread.Sleep(rnd.Next(1500, 2500));
+                                    }
+                                }
+                                else
+                                {
+                                    List<IWebElement> stickAdv5 = driver.FindElements(By.XPath("//button[contains(@class, 'submit')]")).ToList();
+                                    if (stickAdv5.Count > 0)
+                                    {
+                                        IWebElement stick5 = stickAdv5.First();
+                                        stick5.Click();
+                                        Thread.Sleep(rnd.Next(1500, 2500));
+                                    }
+                                }
+                            }
+
                         }
                     }
-                }
-            }
-            else if (priceInWinTxt > setForFirstPlaceTxt)
-            {
-                    Console.WriteLine($"Цена слишком высокая - {priceInWinTxt}, понижаем объявление - {setForFirstPlaceTxt}...");;
-                    List<IWebElement> stickForTheFirstPlace = driver.FindElements(By.XPath("//a[contains(@class,'stick-applier-steps__price')]/span[contains(@data-role,'price-value')]")).ToList();
-                    IWebElement onlyFirst = stickForTheFirstPlace.First();
-                    onlyFirst.Click();
-
-                    // Жмем приклеить
-                    IWebElement stickBtnF = driver.FindElement(By.XPath("//button[contains(@type, 'submit')]"));
-                    stickBtnF.Click();
-
-                    Thread.Sleep(rnd.Next(1500, 2500));
-
-                    // К этом моменту находимся внутри объявления, жмем на надпись "приклеено за...", чтобы перейти к списку объявлений
-                    List<IWebElement> stickedPrice2 = driver.FindElements(By.XPath("//div[contains(@class, 'service-card-head__link')]")).ToList();
-                    if (stickedPrice2.Count > 0)
+                    else if (priceInWinTxt > setForFirstPlaceTxt)
                     {
-                        IWebElement lone = stickedPrice2.First();
-                        lone.Click();
+                        Console.WriteLine($"Цена слишком высокая - {priceInWinTxt}, понижаем объявление - {setForFirstPlaceTxt}..."); ;
+                        List<IWebElement> stickForTheFirstPlace = driver.FindElements(By.XPath("//a[contains(@class,'stick-applier-steps__price')]/span[contains(@data-role,'price-value')]")).ToList();
+                        IWebElement onlyFirst = stickForTheFirstPlace.First();
+                        onlyFirst.Click();
+
+                        // Жмем приклеить
+                        IWebElement stickBtnF = driver.FindElement(By.XPath("//button[contains(@type, 'submit')]"));
+                        stickBtnF.Click();
+
                         Thread.Sleep(rnd.Next(1500, 2500));
-                    }
 
-                    Thread.Sleep(rnd.Next(1500, 2500));
-
-                    // Переключаем на выбранную рубрику
-                    List<IWebElement> rubrikaLst22 = driver.FindElements(By.XPath(String.Format("//span[contains(@class, 'competition-context-links__link-container')]/a[contains(text(), '{0}')]", rubrika))).ToList();
-                    if (rubrikaLst22.Count > 0)
-                    {
-                        Console.WriteLine($"Выбираем рубрику для работы: {rubrika}");
-                        IWebElement loneRub = rubrikaLst22.First();
-                        loneRub.Click();
-                        Thread.Sleep(rnd.Next(1500, 2500));
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Объявление на 1м месте, ожидаем изменения ставок...");
-                    // Обновляем страницу, чтобы получить изменений в позиции объявления
-                    string nowUrl = driver.Url;
-
-                    Thread.Sleep(2000);
-
-                    // Мониторим изменение ставок
-                    while (true)
-                    {
-                        // Вычисление шага между местами 1 и 2
-                        List<IWebElement> step1 = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
-                        double firstSet = Convert.ToDouble(step1.First().Text);
-                        double minP = Convert.ToDouble(step1.Last().Text);
-
-                        // Цена в окошке
-                        List<IWebElement> prInWin = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
-                        IWebElement prLone = prInWin.First();
-                        double pLone = Convert.ToDouble(prLone.GetAttribute("value"));
-                        Console.WriteLine($"Текущая установленная ставка за 1 место - {pLone} руб");
-
-                        if(firstSet == pLone)
+                        // К этом моменту находимся внутри объявления, жмем на надпись "приклеено за...", чтобы перейти к списку объявлений
+                        List<IWebElement> stickedPrice2 = driver.FindElements(By.XPath("//div[contains(@class, 'service-card-head__link')]")).ToList();
+                        if (stickedPrice2.Count > 0)
                         {
-                            Console.WriteLine("Ставка не изменилась, ждем изменения ставки...");
-                            Thread.Sleep(6000);
-                            driver.Navigate().GoToUrl(nowUrl);
-
-                            TimeCheck.TimeOfTheJobCheck(driver, Variables.TimeStart, Variables.TimeEnd);
+                            IWebElement lone = stickedPrice2.First();
+                            lone.Click();
+                            Thread.Sleep(rnd.Next(1500, 2500));
                         }
-                        else
+
+                        Thread.Sleep(rnd.Next(1500, 2500));
+
+                        // Переключаем на выбранную рубрику
+                        List<IWebElement> rubrikaLst22 = driver.FindElements(By.XPath(String.Format("//span[contains(@class, 'competition-context-links__link-container')]/a[contains(text(), '{0}')]", rubrika))).ToList();
+                        if (rubrikaLst22.Count > 0)
                         {
-                            break;
+                            Console.WriteLine($"Выбираем рубрику для работы: {rubrika}");
+                            IWebElement loneRub = rubrikaLst22.First();
+                            loneRub.Click();
+                            Thread.Sleep(rnd.Next(1500, 2500));
                         }
-                    }
-
-                    // Ожидаем еще 20сек применения изменений
-                    Thread.Sleep(500);
-
-                    // К этом моменту находимся внутри объявления, жмем на надпись "приклеено за...", чтобы перейти к списку объявлений
-                    List<IWebElement> stickedPrice2 = driver.FindElements(By.XPath("//div[contains(@class, 'service-card-head__link')]")).ToList();
-                    if (stickedPrice2.Count > 0)
-                    {
-                        IWebElement lone = stickedPrice2.First();
-                        lone.Click();
-                        Thread.Sleep(rnd.Next(1500, 2500));
-                    }
-
-                    Thread.Sleep(rnd.Next(1500, 2500));
-                    // Переключаем на выбранную рубрику
-                    List<IWebElement> rubrikaLst22 = driver.FindElements(By.XPath(String.Format("//span[contains(@class, 'competition-context-links__link-container')]/a[contains(text(), '{0}')]", rubrika))).ToList();
-                    if (rubrikaLst22.Count > 0)
-                    {
-                        Console.WriteLine($"Выбираем рубрику для работы: {rubrika}");
-                        IWebElement loneRub = rubrikaLst22.First();
-                        //loneRub.Click();
-                        Thread.Sleep(rnd.Next(1500, 2500));
-                    }
-                }
-            }
-            else if (indexOfChar > 1)
-            {
-                Console.WriteLine($"Ставка изменилась, объявление на {indexOfChar} месте, поднимаем или опускаем объявление, в зависимости от ситуации...");
-
-                double newSet = 0;
-
-                // Читаем ставки на сайте
-                List<IWebElement> setForFirstPlace = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
-                double setForFirstPlaceTxt = Convert.ToDouble(setForFirstPlace[0].Text);
-                double minPriceSetTxt = Convert.ToDouble(setForFirstPlace.Last().Text);
-
-                // Цена в окошке
-                List<IWebElement> priceInWindow = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
-                IWebElement lonePrice = priceInWindow.First();
-                double priceInWinTxt = Convert.ToDouble(lonePrice.GetAttribute("value"));
-
-                // Проверяем лимит
-                if (setForFirstPlaceTxt <= Variables.fullLimit)
-                {
-                    IntervalSet run = new IntervalSet();
-                    run.Interval(timeSFrom, timeSTo);
-
-                    Console.WriteLine("Ставка за первое место в указанном диапазоне, ставим ставку за первое место");
-                    IWebElement set = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
-                    set.Click();
-
-                    Thread.Sleep(rnd.Next(1500, 2500));
-
-                    // (setForFirstPlaceTxt * 0.06)
-                    List<string> allIds = new List<string>();
-
-                    //setForFirstPlaceTxt = setForFirstPlaceTxt - 10;
-
-                    // Сначала ставим пониженную ставку 111
-                    Clipboard.SetText(Convert.ToString(setForFirstPlaceTxt));
-
-                    // Ставка
-                    IWebElement stickSet1 = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
-                    stickSet1.SendKeys(OpenQA.Selenium.Keys.Control + "a");
-                    stickSet1.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
-                    stickSet1.SendKeys(OpenQA.Selenium.Keys.Control + "v");
-
-                    List<string> allAdvInCabLst = new List<string>();
-
-                    List<IWebElement> advs = driver.FindElements(By.XPath("//div[contains(@class, 'bull-item-content__subject-container')]/a")).ToList();
-                    foreach (var elm in advs)
-                    {
-                        allAdvInCabLst.Add(elm.GetAttribute("name"));
-                        Console.WriteLine(elm.GetAttribute("name"));
-                    }
-
-                    allAdvInCabLst.RemoveAt(0);
-
-                    foreach (var elm in allAdvInCabLst)
-                    {
-                        Console.WriteLine(elm);
-                    }
-
-                    // Условие - если индекс 0 или 1, то просто сохраняем ставку, если дальше, то меняем
-                    if(allAdvInCabLst.IndexOf(Variables.idAdv) == 0 || allAdvInCabLst.IndexOf(Variables.idAdv) == 1)
-                    {
-                        Console.WriteLine("Наше объявление на первом месте, оставляем ставку как есть");
                     }
                     else
                     {
-                        // Ставка
-                        IWebElement stickSet2 = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
-                        stickSet2.SendKeys(OpenQA.Selenium.Keys.Control + "a");
-                        stickSet2.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
-                        stickSet2.SendKeys(OpenQA.Selenium.Keys.Control + "v");
+                        //Console.WriteLine("Объявление на 1м месте, ожидаем изменения ставок...");
+                        // Обновляем страницу, чтобы получить изменений в позиции объявления
+                        string nowUrl = driver.Url;
 
-                        // Проверяем место на котором наше объявление сейчас
-                        Clipboard.SetText(Convert.ToString(priceInWinTxt));
-                        double newPrice = 0;
-
-                        //// Цикл по подбору 1ого места                        
-                        Clipboard.SetText(Convert.ToString(setForFirstPlaceTxt));
-
+                        // Мониторим изменение ставок
                         while (true)
                         {
-                            allIds.Clear();
-                            // Выстраиваем список из id всех объявлений на странице
-                            List<IWebElement> allIdsNow = driver.FindElements(By.XPath("//div[contains(@class, 'bull-item-content__content-wrapper')]//div[contains(@class, 'bull-item-content__subject-container')]/a")).ToList();
-                            if (allIdsNow.Count > 0)
+                            Thread.Sleep(2000);
+
+                            List<IWebElement> inToAdv = driver.FindElements(By.XPath("//div[contains(@class, 'serviceStick')]")).ToList();
+                            if (inToAdv.Count > 0)
                             {
-                                // Проверить - вопрос с индексом ??
-                                for (int i = 0; i < allIdsNow.Count; i++)
+                                IWebElement itv = inToAdv.FirstOrDefault();
+                                itv.Click();
+                                Thread.Sleep(2000);
+                            }
+
+                            // Переключаем на рубрику
+                            List<IWebElement> rubrikaLst23 = driver.FindElements(By.XPath(String.Format("//span[contains(@class, 'competition-context-links__link-container')]/a[contains(text(), '{0}')]", rubrika))).ToList();
+                            if (rubrikaLst23.Count > 0)
+                            {
+                                Console.WriteLine($"Выбираем рубрику для работы: {rubrika}");
+                                IWebElement loneRub = rubrikaLst23.First();
+                                loneRub.Click();
+                                Thread.Sleep(rnd.Next(1500, 2500));
+                            }
+
+                            // Вычисление шага между местами 1 и 2
+                            List<IWebElement> step1 = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
+                            double firstSet = Convert.ToDouble(step1.First().Text);
+                            double minP = Convert.ToDouble(step1.Last().Text);
+
+                            // Цена в окошке
+                            List<IWebElement> prInWin = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
+                            IWebElement prLone = prInWin.FirstOrDefault();
+                            double pLone = Convert.ToDouble(prLone.GetAttribute("value"));
+                            Console.WriteLine($"Текущая установленная ставка за 1 место - {pLone} руб");
+
+                            if (firstSet == pLone)
+                            {
+                                Console.WriteLine("Ставка не изменилась, ждем изменения ставки...");
+                                Thread.Sleep(6000);
+                                driver.Navigate().GoToUrl(nowUrl);
+
+                                TimeCheck.TimeOfTheJobCheck(driver, Variables.TimeStart, Variables.TimeEnd);
+                            }
+                            else if(firstSet > pLone)
+                            {
+                                Console.WriteLine("Повышаем объявление");
+
+                                Thread.Sleep(1500);
+
+                                // Проверяем на появление - слишком частое применение запрещено
+                                List<IWebElement> offen = driver.FindElements(By.XPath("//div[contains(@class, 'checked-annotation')][2]/p")).ToList();
+                                if (offen.Count > 0)
                                 {
-                                    Variables.nowPlace = allIdsNow[i];
-                                    allIds.Add(Variables.nowPlace.GetAttribute("name"));
-                                    Console.WriteLine("Добавляем id - " + Variables.nowPlace.GetAttribute("name"));
+                                    IWebElement of = offen.FirstOrDefault();
 
-                                    // Получаем индекс нашего id
-                                    if (Variables.nowPlace.Text.Contains(Variables.idAdv))
+                                    if (of.Text.Contains("Слишком частое применение услуги запрещено"))
                                     {
-                                        Console.WriteLine($"Нашли свое объявление на {allIds.IndexOf(Variables.idAdv)} месте");
-                                    }
+                                        Console.WriteLine("Пауза 2 минуты перед последующими действиями...");
+                                        Thread.Sleep(12000);
 
-                                    // Если id != 1
-                                    if (allIdsNow.IndexOf(Variables.nowPlace) != 0)
-                                    {
-                                        Console.WriteLine($"Наше объявление на {allIds.IndexOf(Variables.idAdv)} месте");
-                                        Console.WriteLine("Объвление еще не на первом месте, прибавляем +1 к ставке");
-                                        newPrice = newPrice + 1;
-                                        //break;
+                                        // Здесь переключиться на объявление
+                                        List<IWebElement> clkOnAdv = driver.FindElements(By.XPath("//button[contains(@type, 'submit')]")).ToList();
+                                        if (clkOnAdv.Count > 0)
+                                        {
+                                            IWebElement clkA = clkOnAdv.FirstOrDefault();
+                                            clkA.Click();
+                                            Thread.Sleep(rnd.Next(1500, 2500));
+                                        }
+
+                                        List<IWebElement> stickedLst2 = driver.FindElements(By.XPath("//div[contains(@class, 'serviceStick')]/div")).ToList();
+                                        if (stickedLst2.Count > 0)
+                                        {
+                                            IWebElement st = stickedLst2.FirstOrDefault();
+                                            st.Click();
+                                            Thread.Sleep(rnd.Next(1500, 2500));
+                                        }
                                     }
                                 }
 
-                                setForFirstPlaceTxt = setForFirstPlaceTxt + 1;
+                                // Цена в окошке
+                                //List<IWebElement> prInWin3 = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
+                                //IWebElement prLone3 = prInWin3.FirstOrDefault();
+                                //double pLone3 = Convert.ToDouble(lonePrice.GetAttribute("value"));
+                                //Console.WriteLine($"Текущая установленная ставка за 1 место - {pLone} руб");
 
-                                Clipboard.SetText(Convert.ToString(setForFirstPlaceTxt));
+                                // Клик на стрелку
+                                List<IWebElement> spin_down = driver.FindElements(By.XPath("//button[contains(@class, 'spins__spin_up')]")).ToList();
+                                if (spin_down.Count > 0)
+                                {
+                                    IWebElement spin = spin_down.FirstOrDefault();
+                                    //spin.Click();
+                                    Thread.Sleep(2000);
+
+                                    // Проверяем изменененную ставку
+                                    // Цена в окошке
+                                    //List<IWebElement> prWithStep = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
+                                    //IWebElement prStep = priceInWindow.First();
+                                    //double prS = Convert.ToDouble(lonePrice.GetAttribute("value"));
+                                    //Console.WriteLine($"Новая цена - {prS} руб");
+                                }
+
+
+                                Clipboard.SetText(Convert.ToString(firstSet));
                                 // Ставка
-                                IWebElement stickSet3 = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
-                                stickSet3.SendKeys(OpenQA.Selenium.Keys.Control + "a");
-                                stickSet3.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
-                                stickSet3.SendKeys(OpenQA.Selenium.Keys.Control + "v");
+                                IWebElement stick = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
+                                stick.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                                stick.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
+                                stick.SendKeys(OpenQA.Selenium.Keys.Control + "v");
 
-                                //if (allIdsNow.IndexOf(Variables.nowPlace) == 0 || allIdsNow.IndexOf(Variables.nowPlace) == 1) break;
+                                // Сохранить
+                                List<IWebElement> save = driver.FindElements(By.XPath("//button[contains(@class, 'stick-form__save-button')]")).ToList();
+                                if(save.Count > 0)
+                                {
+                                    IWebElement se = save.FirstOrDefault();
+                                    se.Click();
+                                    Thread.Sleep(4000);
+                                }
+                            }
+                            else
+                            {
+
+                                double firstSetAdv = 0;
+
+                                // Проверка лимита
+                                if(Variables.limitStop <= pLone)
+                                {
+                                    Console.WriteLine("Достигнут установленный лимит, откатываем ставку до ставки за 1е место...");
+
+                                    // Считываем ставку за первое место
+                                    List<IWebElement> setFirstPlace = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__price-cell')]/a/span")).ToList();
+                                    if(setFirstPlace.Count > 0)
+                                    {
+                                        IWebElement sfp = setFirstPlace.FirstOrDefault();
+                                        firstSetAdv = Convert.ToDouble(sfp.Text);
+                                    }
+
+                                    firstSetAdv = firstSet;
+
+                                    Clipboard.SetText(Convert.ToString(firstSet));
+                                    // Установка ставки
+                                    IWebElement stick = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
+                                    stick.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                                    stick.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
+                                    stick.SendKeys(OpenQA.Selenium.Keys.Control + "v");
+
+                                    // Сохранить
+                                    List<IWebElement> save = driver.FindElements(By.XPath("//button[contains(@class, 'stick-form__save-button')]")).ToList();
+                                    if (save.Count > 0)
+                                    {
+                                        IWebElement se = save.FirstOrDefault();
+                                        se.Click();
+                                        Thread.Sleep(4000);
+                                    }
+                                }
+
+                                break;
                             }
                         }
-                    }
 
-                    Thread.Sleep(rnd.Next(1500, 2500));
+                        // Ожидаем еще 20сек применения изменений
+                        Thread.Sleep(500);
 
-                    // Жмем приклеить
-                    IWebElement stickBtnF = driver.FindElement(By.XPath("//button[contains(@type, 'submit')]"));
-                    stickBtnF.Click();
-
-                    Thread.Sleep(rnd.Next(4500, 6500));
-
-                    // Подтверждение приклеивания объявления
-                    List<IWebElement> payed = driver.FindElements(By.XPath("//div[contains(@class, 'bulletin-user-action-block')]")).ToList();
-                    if(payed.Count > 0)
-                    {
-                        IWebElement lone = payed.First();
-                        string txt = lone.Text;
-                        if(txt.Contains("Оплачено"))
+                        // К этом моменту находимся внутри объявления, жмем на надпись "приклеено за...", чтобы перейти к списку объявлений
+                        List<IWebElement> stickedPrice2 = driver.FindElements(By.XPath("//div[contains(@class, 'service-card-head__link')]")).ToList();
+                        if (stickedPrice2.Count > 0)
                         {
-                            Console.WriteLine("Уже приклеено, мониторим...");
-                            // Жмем на "приклеено", чтобы отобразить список объявлений
-                            IWebElement alreadyStick = driver.FindElement(By.XPath("//div[contains(@class, 'serviceStick')]"));
-                            alreadyStick.Click();
+                            IWebElement lone = stickedPrice2.First();
+                            lone.Click();
                             Thread.Sleep(rnd.Next(1500, 2500));
+                        }
 
-                            // Переключаем на выбранную рубрику
-                            List<IWebElement> needRub = driver.FindElements(By.XPath(String.Format("//span[contains(@class, 'competition-context-links__link-container')]/a[contains(text(), '{0}')]", rubrika))).ToList();
-                            if (needRub.Count > 0)
-                            {
-                                Console.WriteLine($"Выбираем рубрику для работы: {rubrika}");
-                                IWebElement loneRub = needRub.First();
-                                loneRub.Click();
-                                Thread.Sleep(rnd.Next(1500,2500));
-                            }
+                        Thread.Sleep(rnd.Next(1500, 2500));
+                        // Переключаем на выбранную рубрику
+                        List<IWebElement> rubrikaLst22 = driver.FindElements(By.XPath(String.Format("//span[contains(@class, 'competition-context-links__link-container')]/a[contains(text(), '{0}')]", rubrika))).ToList();
+                        if (rubrikaLst22.Count > 0)
+                        {
+                            Console.WriteLine($"Выбираем рубрику для работы: {rubrika}");
+                            IWebElement loneRub = rubrikaLst22.First();
+                            //loneRub.Click();
+                            Thread.Sleep(rnd.Next(1500, 2500));
+                        }
+                    }
+                }
+                else if (indexOfChar > 1)
+                {
+                    Console.WriteLine($"Ставка изменилась, объявление на {indexOfChar} месте, поднимаем или опускаем объявление, в зависимости от ситуации...");
+
+                    double newSet = 0;
+
+                    // Читаем ставки на сайте
+                    List<IWebElement> setForFirstPlace = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
+                    double setForFirstPlaceTxt = Convert.ToDouble(setForFirstPlace[0].Text);
+                    double minPriceSetTxt = Convert.ToDouble(setForFirstPlace.Last().Text);
+
+                    // Цена в окошке
+                    List<IWebElement> priceInWindow = driver.FindElements(By.XPath("//div[contains(@class, 'controlBody')]/input")).ToList();
+                    IWebElement lonePrice = priceInWindow.First();
+                    double priceInWinTxt = Convert.ToDouble(lonePrice.GetAttribute("value"));
+
+                    // Проверяем лимит
+                    if (setForFirstPlaceTxt <= Variables.fullLimit)
+                    {
+                        IntervalSet run = new IntervalSet();
+                        run.Interval(timeSFrom, timeSTo);
+
+                        Console.WriteLine("Ставка за первое место в указанном диапазоне, ставим ставку за первое место");
+                        IWebElement set = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
+                        set.Click();
+
+                        Thread.Sleep(rnd.Next(1500, 2500));
+
+                        // (setForFirstPlaceTxt * 0.06)
+                        List<string> allIds = new List<string>();
+
+                        //setForFirstPlaceTxt = setForFirstPlaceTxt - 10;
+
+                        // Сначала ставим пониженную ставку 111
+                        Clipboard.SetText(Convert.ToString(setForFirstPlaceTxt));
+
+                        // Ставка
+                        IWebElement stickSet1 = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
+                        stickSet1.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                        stickSet1.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
+                        stickSet1.SendKeys(OpenQA.Selenium.Keys.Control + "v");
+
+                        List<string> allAdvInCabLst = new List<string>();
+
+                        List<IWebElement> advs = driver.FindElements(By.XPath("//div[contains(@class, 'bull-item-content__subject-container')]/a")).ToList();
+                        foreach (var elm in advs)
+                        {
+                            allAdvInCabLst.Add(elm.GetAttribute("name"));
+                            Console.WriteLine(elm.GetAttribute("name"));
+                        }
+
+                        allAdvInCabLst.RemoveAt(0);
+
+                        foreach (var elm in allAdvInCabLst)
+                        {
+                            Console.WriteLine(elm);
+                        }
+
+                        // Условие - если индекс 0 или 1, то просто сохраняем ставку, если дальше, то меняем
+                        if (allAdvInCabLst.IndexOf(Variables.idAdv) == 0 || allAdvInCabLst.IndexOf(Variables.idAdv) == 1)
+                        {
+                            Console.WriteLine("Наше объявление на первом месте, оставляем ставку как есть");
                         }
                         else
                         {
-                            List<IWebElement> stickAdv = driver.FindElements(By.XPath("//button[contains(@class, 'submit')]")).ToList();
-                            if (stickAdv.Count > 0)
+                            // Ставка
+                            IWebElement stickSet2 = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
+                            stickSet2.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                            stickSet2.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
+                            stickSet2.SendKeys(OpenQA.Selenium.Keys.Control + "v");
+
+                            // Проверяем место на котором наше объявление сейчас
+                            Clipboard.SetText(Convert.ToString(priceInWinTxt));
+                            double newPrice = 0;
+
+                            //// Цикл по подбору 1ого места                        
+                            Clipboard.SetText(Convert.ToString(setForFirstPlaceTxt));
+
+                            while (true)
                             {
-                                IWebElement stick = stickAdv.First();
-                                stick.Click();
-                                Thread.Sleep(rnd.Next(1500, 2500));
+                                allIds.Clear();
+                                // Выстраиваем список из id всех объявлений на странице
+                                List<IWebElement> allIdsNow = driver.FindElements(By.XPath("//div[contains(@class, 'bull-item-content__content-wrapper')]//div[contains(@class, 'bull-item-content__subject-container')]/a")).ToList();
+                                if (allIdsNow.Count > 0)
+                                {
+                                    // Проверить - вопрос с индексом ??
+                                    for (int i = 0; i < allIdsNow.Count; i++)
+                                    {
+                                        Variables.nowPlace = allIdsNow[i];
+                                        allIds.Add(Variables.nowPlace.GetAttribute("name"));
+                                        Console.WriteLine("Добавляем id - " + Variables.nowPlace.GetAttribute("name"));
+
+                                        // Получаем индекс нашего id
+                                        if (Variables.nowPlace.Text.Contains(Variables.idAdv))
+                                        {
+                                            Console.WriteLine($"Нашли свое объявление на {allIds.IndexOf(Variables.idAdv)} месте");
+                                        }
+
+                                        // Если id != 1
+                                        if (allIdsNow.IndexOf(Variables.nowPlace) != 0)
+                                        {
+                                            Console.WriteLine($"Наше объявление на {allIds.IndexOf(Variables.idAdv)} месте");
+                                            Console.WriteLine("Объвление еще не на первом месте, прибавляем +1 к ставке");
+                                            newPrice = newPrice + 1;
+                                            //break;
+                                        }
+                                    }
+
+                                    setForFirstPlaceTxt = setForFirstPlaceTxt + 1;
+
+                                    Clipboard.SetText(Convert.ToString(setForFirstPlaceTxt));
+                                    // Ставка
+                                    IWebElement stickSet3 = driver.FindElement(By.XPath("//input[contains(@name, 'stickPrice')]"));
+                                    stickSet3.SendKeys(OpenQA.Selenium.Keys.Control + "a");
+                                    stickSet3.SendKeys(OpenQA.Selenium.Keys.Control + "delete");
+                                    stickSet3.SendKeys(OpenQA.Selenium.Keys.Control + "v");
+
+                                    //if (allIdsNow.IndexOf(Variables.nowPlace) == 0 || allIdsNow.IndexOf(Variables.nowPlace) == 1) break;
+                                }
                             }
                         }
+
+                        Thread.Sleep(rnd.Next(1500, 2500));
+
+                        // Жмем приклеить
+                        IWebElement stickBtnF = driver.FindElement(By.XPath("//button[contains(@type, 'submit')]"));
+                        stickBtnF.Click();
+
+                        Thread.Sleep(rnd.Next(4500, 6500));
+
+                        // Подтверждение приклеивания объявления
+                        List<IWebElement> payed = driver.FindElements(By.XPath("//div[contains(@class, 'bulletin-user-action-block')]")).ToList();
+                        if (payed.Count > 0)
+                        {
+                            IWebElement lone = payed.First();
+                            string txt = lone.Text;
+                            if (txt.Contains("Оплачено"))
+                            {
+                                Console.WriteLine("Уже приклеено, мониторим...");
+                                // Жмем на "приклеено", чтобы отобразить список объявлений
+                                IWebElement alreadyStick = driver.FindElement(By.XPath("//div[contains(@class, 'serviceStick')]"));
+                                alreadyStick.Click();
+                                Thread.Sleep(rnd.Next(1500, 2500));
+
+                                // Переключаем на выбранную рубрику
+                                List<IWebElement> needRub = driver.FindElements(By.XPath(String.Format("//span[contains(@class, 'competition-context-links__link-container')]/a[contains(text(), '{0}')]", rubrika))).ToList();
+                                if (needRub.Count > 0)
+                                {
+                                    Console.WriteLine($"Выбираем рубрику для работы: {rubrika}");
+                                    IWebElement loneRub = needRub.First();
+                                    loneRub.Click();
+                                    Thread.Sleep(rnd.Next(1500, 2500));
+                                }
+                            }
+                            else
+                            {
+                                List<IWebElement> stickAdv6 = driver.FindElements(By.XPath("//button[contains(@class, 'submit')]")).ToList();
+                                if (stickAdv6.Count > 0)
+                                {
+                                    IWebElement stick6 = stickAdv6.First();
+                                    stick6.Click();
+                                    Thread.Sleep(rnd.Next(1500, 2500));
+                                }
+                            }
+                        }
+
+                        Thread.Sleep(rnd.Next(1500, 2500));
+
+                        // Шаг назад
+                        //driver.Navigate().GoToUrl("https://www.farpost.ru/personal/actual/bulletins");
                     }
-
-                    Thread.Sleep(rnd.Next(1500, 2500));
-
-                    // Шаг назад
-                    //driver.Navigate().GoToUrl("https://www.farpost.ru/personal/actual/bulletins");
-                }
-                else
-                {
-                    Console.WriteLine("По объявлению превышен лимит, ничего не делаем с ним");
+                    else
+                    {
+                        Console.WriteLine("По объявлению превышен лимит, ничего не делаем с ним");
+                    }
                 }
             }
-            //}
         }
     }
 
@@ -1194,7 +1308,7 @@ namespace FarpostCrowler
 
             // Читаем ставки на сайте
             List<IWebElement> setForFirstPlace = driver.FindElements(By.XPath("//div[contains(@class, 'stick-applier-steps__details')]/div/a/span[1]")).ToList();
-            if(setForFirstPlace.Count > 0)
+            if (setForFirstPlace.Count > 0)
             {
                 double setForFirstPlaceTxt = Convert.ToDouble(setForFirstPlace.First().Text);
                 double minPriceSetTxt = Convert.ToDouble(setForFirstPlace.Last().Text);
@@ -1221,9 +1335,9 @@ namespace FarpostCrowler
                     Console.WriteLine("Ожидаем время начала задания");
                     Thread.Sleep(1000);
                 }
-                else if(nowTime > endOfJob)
+                else if (nowTime > endOfJob)
                 {
-                    Console.WriteLine("Время завершить работу. Снимаем все объявления..."); 
+                    Console.WriteLine("Время завершить работу. Снимаем все объявления...");
 
                     // Снятие объявлений после выхода времени для работы - добавить
                     IWebElement unstickBtn = driver.FindElement(By.XPath("//a[contains(@class, 'unstick')]"));
@@ -1238,6 +1352,6 @@ namespace FarpostCrowler
                     break;
                 }
             }
-        }        
+        }
     }
 }
